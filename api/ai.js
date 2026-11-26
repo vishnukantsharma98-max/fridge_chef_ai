@@ -26,7 +26,7 @@ async function callOpenAIStyle(url, key, model, body) {
     const m = j?.error?.message || j?.error || j?.message || 'API error ' + r.status;
     return { status: r.status, json: { error: { message: String(m) } } };
   }
-  const text = j?.choices?.[0]?.message?.content || '';
+  const text = String(j?.choices?.[0]?.message?.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim();
   return { status: 200, json: { candidates: [{ content: { parts: [{ text }] } }] } };
 }
 
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
       o = await callOpenAIStyle(
         'https://api.groq.com/openai/v1/chat/completions',
         process.env.GROQ_API_KEY,
-        process.env.GROQ_MODEL || 'meta-llama/llama-4-scout-17b-16e-instruct',
+        process.env.GROQ_MODEL || 'qwen/qwen3.8-27b',
         req.body
       );
     } else if (process.env.XAI_API_KEY) {
